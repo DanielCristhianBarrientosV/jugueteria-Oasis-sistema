@@ -6,16 +6,16 @@ import SearchBar from '@/components/ui/SearchBar';
 import FilterSidebar from '@/components/ui/FilterSidebar';
 import { Product, FilterOptions } from './types/product';
 
-// Datos mock de productos
+// Datos mock de productos con imágenes
 const mockProducts: Product[] = [
   {
     id: 1,
     name: 'Lego Classic - Caja Creativa',
-    price: 29.99,
-    originalPrice: 34.99,
+    price: 229.99,
+    originalPrice: 279.99,
     category: 'Construcción',
     ageRange: '6-8 años',
-    image: '/api/placeholder/300/300',
+    image: 'https://www.lego.com/cdn/cs/set/assets/blt10888b5e58f4fa76/3_11029_Classic_Sidekick_tall.jpg?fit=crop&format=jpg&quality=80&width=800&height=600&dpr=1',
     description: 'Set de construcción creativa con piezas coloridas para horas de diversión',
     stock: 15,
     rating: 4.8,
@@ -25,10 +25,10 @@ const mockProducts: Product[] = [
   {
     id: 2,
     name: 'Muñeca Barbie Dreamhouse',
-    price: 89.99,
+    price: 689.99,
     category: 'Muñecas',
     ageRange: '3-5 años',
-    image: '/api/placeholder/300/300',
+    image: 'https://toysmart.co/cdn/shop/products/01605-1_720x.jpg?v=1707227997',
     description: 'Casa de sueños con accesorios y muebles para muñecas Barbie',
     stock: 8,
     rating: 4.5
@@ -36,58 +36,167 @@ const mockProducts: Product[] = [
   {
     id: 3,
     name: 'Hot Wheels Pista Extrema',
-    price: 45.99,
+    price: 345.99,
     category: 'Vehículos',
     ageRange: '6-8 años',
-    image: '/api/placeholder/300/300',
+    image: 'https://http2.mlstatic.com/D_NQ_NP_670063-MLA89683253713_082025-O.webp',
     description: 'Pista de carreras con loops y saltos increíbles',
     stock: 12,
     rating: 4.7
   },
   {
     id: 4,
-    name: 'Monopoly Edición Boliviana',
-    price: 39.99,
+    name: 'Monopoly',
+    price: 299.99,
     category: 'Juegos de Mesa',
     ageRange: '9-12 años',
-    image: '/api/placeholder/300/300',
+    image: 'https://production-tailoy-repo-magento-statics.s3.amazonaws.com/imagenes/872x872/productos/i/j/u/juego-de-mesa-hasbro-gaming-monopoly-decodificador-49409-default-1.jpg',
     description: 'El clásico juego de mesa con calles y lugares de Bolivia',
     stock: 20,
     rating: 4.6
   },
   {
     id: 5,
-    name: 'Set de Química Explosiva',
-    price: 54.99,
+    name: 'Qui de juguetes de Doctor',
+    price: 419.99,
     category: 'Educativos',
     ageRange: '9-12 años',
-    image: '/api/placeholder/300/300',
-    description: 'Kit completo de experimentos científicos seguros y divertidos',
+    image: 'https://m.media-amazon.com/images/I/71XswLSDL0L._AC_UF894,1000_QL80_.jpg',
+    description: 'Kit completo de vestimenta y accesorios de doctor',
     stock: 7,
     rating: 4.9,
     isNew: true
   },
   {
     id: 6,
-    name: 'Pelota de Fútbol Profesional',
-    price: 34.99,
+    name: 'Pelota de Fútbol',
+    price: 269.99,
     category: 'Deportes',
     ageRange: '6-8 años',
-    image: '/api/placeholder/300/300',
+    image: 'https://www.mijugueteria.com.ec/wp-content/uploads/2023/11/40494985_0120230215120125.jpg',
     description: 'Pelota de fútbol oficial tamaño 5 con diseño exclusivo',
     stock: 25,
     rating: 4.4
+  },
+  {
+    id: 7,
+    name: 'Puzzle 3D Torre Eiffel',
+    price: 189.99,
+    category: 'Juegos de Mesa',
+    ageRange: '9-12 años',
+    image: 'https://images-rajhraciek-cdn.rshop.sk/lgt/products/0f0f4fc62d686f9a91c96dd74b04bce0.jpg',
+    description: 'Rompecabezas tridimensional de 500 piezas',
+    stock: 18,
+    rating: 4.7,
+    isNew: true
+  },
+  {
+    id: 8,
+    name: 'Pistola de Hidrogel',
+    price: 599.99,
+    originalPrice: 699.99,
+    category: 'Educativos',
+    ageRange: '9-12 años',
+    image: 'https://realplaza.vtexassets.com/arquivos/ids/31036721-800-auto?v=638048181715970000&width=800&height=auto&aspect=true',
+    description: 'Pistola de Hidrogel para jugar',
+    stock: 5,
+    rating: 4.9,
+    isOnSale: true
+  },
+  {
+    id: 9,
+    name: 'Set de Dinosaurios Jurásicos',
+    price: 159.99,
+    category: 'Exteriores',
+    ageRange: '3-5 años',
+    image: 'https://todojuguete.es/191924/set_6_dinosaurios_con_arboles_jurassic_era.jpg',
+    description: 'Colección de 12 dinosaurios realistas para aventuras prehistóricas',
+    stock: 30,
+    rating: 4.6
+  },
+  {
+    id: 10,
+    name: 'Castillo de Princesas',
+    price: 449.99,
+    category: 'Muñecas',
+    ageRange: '3-5 años',
+    image: 'https://www.startoys.ar/files/product_image/image/53/181062/thumb_3422_9675_1.jpg',
+    description: 'Castillo mágico con luces y sonidos, incluye 3 princesas',
+    stock: 10,
+    rating: 4.8,
+    isNew: true
+  },
+  {
+    id: 11,
+    name: 'Patines Infantiles', 
+    price: 389.99,
+    category: 'Deportes',
+    ageRange: '9-12 años',
+    image: 'https://denuevoo.com/wp-content/uploads/2023/08/patineta-rosada-roller.png',
+    description: 'Skateboard con diseño exclusivo y rodamientos ABEC-7',
+    stock: 14,
+    rating: 4.5
+  },
+  {
+    id: 12,
+    name: 'Set de Arte Completo',
+    price: 279.99,
+    category: 'Educativos',
+    ageRange: '6-8 años',
+    image: 'hhttps://i.ebayimg.com/thumbs/images/g/xP0AAOSw9e9oVkzN/s-l1200.jpg',
+    description: 'Maletín con 150 piezas: lápices, acuarelas, marcadores y más',
+    stock: 22,
+    rating: 4.7,
+    isOnSale: true,
+    originalPrice: 329.99
+  },
+  {
+    id: 13,
+    name: 'Cocina de Juguete Deluxe',
+    price: 519.99,
+    category: 'Muñecas',
+    ageRange: '3-5 años',
+    image: 'https://image.made-in-china.com/202f0j00pWrbjgEnJfqL/Kindergarten-Kids-Role-Play-Game-Simulated-Kitchen-Utensils-Kitchenware-Tableware-Pots-Gas-Stove-Plastic-Cooking-Toys-for-Girls.webp',
+    description: 'Cocina interactiva con luces, sonidos y accesorios',
+    stock: 9,
+    rating: 4.8
+  },
+  {
+    id: 14,
+    name: 'Dron con Cámara HD',
+    price: 899.99,
+    category: 'Vehículos',
+    ageRange: '9-12 años',
+    image: 'https://i5.walmartimages.com/asr/b06485a4-710e-412d-a263-ff41ac22ee58.e71b7ecc05fe12f4e17d38108054e037.jpeg?odnHeight=612&odnWidth=612&odnBg=FFFFFF',
+    description: 'Dron con cámara 1080p y control remoto, ideal para principiantes',
+    stock: 6,
+    rating: 4.9,
+    isNew: true
+  },
+  {
+    id: 15,
+    name: 'Juego de Madera Jenga',
+    price: 189.99,
+    category: 'Juegos de Mesa',
+    ageRange: '6-8 años',
+    image: 'https://m.media-amazon.com/images/I/81yiXHwgQWL.jpg',
+    description: 'Torre de bloques gigante de 60cm para diversión familiar',
+    stock: 16,
+    rating: 4.6
   }
 ];
 
 export default function CatalogoPage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<FilterOptions>({
     category: '',
     ageRange: '',
     priceRange: { min: 0, max: 1000 },
     sortBy: 'name'
   });
+
+  const itemsPerPage = 6;
 
   // Filtrar y ordenar productos
   const filteredProducts = useMemo(() => {
@@ -122,8 +231,25 @@ export default function CatalogoPage() {
     return filtered;
   }, [searchQuery, filters]);
 
+  // Paginación
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentProducts = filteredProducts.slice(startIndex, endIndex);
+
   const handleSearch = (query: string) => {
     setSearchQuery(query);
+    setCurrentPage(1); // Reset a página 1 al buscar
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleFiltersChange = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
+    setCurrentPage(1); // Reset a página 1 al cambiar filtros
   };
 
   return (
@@ -149,7 +275,7 @@ export default function CatalogoPage() {
           {/* Sidebar de filtros */}
           <aside className="lg:w-1/4">
             <div className="sticky top-4">
-              <FilterSidebar filters={filters} onFiltersChange={setFilters} />
+              <FilterSidebar filters={filters} onFiltersChange={handleFiltersChange} />
             </div>
           </aside>
 
@@ -171,7 +297,7 @@ export default function CatalogoPage() {
                 <span className="text-sm text-gray-600">Ordenar por:</span>
                 <select
                   value={filters.sortBy}
-                  onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
+                  onChange={(e) => handleFiltersChange({ ...filters, sortBy: e.target.value })}
                   className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="name">Nombre</option>
@@ -184,7 +310,7 @@ export default function CatalogoPage() {
             </div>
 
             {/* Grid de productos */}
-            {filteredProducts.length === 0 ? (
+            {currentProducts.length === 0 ? (
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
                 <div className="max-w-md mx-auto">
                   <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -205,6 +331,7 @@ export default function CatalogoPage() {
                         priceRange: { min: 0, max: 1000 },
                         sortBy: 'name'
                       });
+                      setCurrentPage(1);
                     }}
                     className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
@@ -213,46 +340,62 @@ export default function CatalogoPage() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    name={product.name}
-                    description={product.description}
-                    price={product.price}
-                    image={product.image}
-                    originalPrice={product.originalPrice}
-                    ageRange={product.ageRange}
-                    rating={product.rating}
-                    stock={product.stock}
-                    isNew={product.isNew}
-                    isOnSale={product.isOnSale}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Paginación (opcional para futuro) */}
-            {filteredProducts.length > 0 && (
-              <div className="mt-8 flex justify-center">
-                <div className="flex items-center gap-2">
-                  <button className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    Anterior
-                  </button>
-                  <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-                    1
-                  </button>
-                  <button className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                    2
-                  </button>
-                  <button className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                    3
-                  </button>
-                  <button className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                    Siguiente
-                  </button>
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {currentProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      name={product.name}
+                      description={product.description}
+                      price={product.price}
+                      image={product.image}
+                      originalPrice={product.originalPrice}
+                      ageRange={product.ageRange}
+                      rating={product.rating}
+                      stock={product.stock}
+                      isNew={product.isNew}
+                      isOnSale={product.isOnSale}
+                    />
+                  ))}
                 </div>
-              </div>
+
+                {/* Paginación */}
+                {totalPages > 1 && (
+                  <div className="mt-8 flex justify-center">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Anterior
+                      </button>
+                      
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-4 py-2 rounded-lg transition-colors ${
+                            currentPage === page
+                              ? 'bg-blue-600 text-white'
+                              : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                      
+                      <button
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      >
+                        Siguiente
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </main>
         </div>

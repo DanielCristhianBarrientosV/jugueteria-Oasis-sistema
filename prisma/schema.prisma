@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -13,68 +9,163 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ==========================================
+// MODELO DE USUARIO (Solo 2 tipos: PERSONAL y CLIENTE)
+// ==========================================
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  name      String?
-  password  String?  // Hasheado con bcrypt
+  name      String
+  password  String   // Contraseña hasheada con bcrypt
   role      Role     @default(CLIENTE)
+  active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  accounts Account[]
-  sessions Session[]
-}
-
-model Product {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  price       Decimal  @db.Decimal(10, 2)
-  stock       Int      @default(0)
-  imageUrl    String?
-  category    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String? @db.Text
-  access_token       String? @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String? @db.Text
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+  
+  // Relaciones
+  sales     Sale[]
+  
+  @@map("users")
 }
 
 enum Role {
-  CLIENTE
-  EMPLEADO
-  ADMIN
+  PERSONAL  // Acceso al panel administrativo
+  CLIENTE   // Solo acceso al catálogo
+}
+
+// ==========================================
+// MODELO DE PRODUCTO
+// ==========================================
+model Product {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  name         String
+  description  String?  @db.Text
+  category     String
+  supplier     String
+  
+  // Stock
+  currentStock Int
+  minStock     Int
+  
+  // Precios
+  majorPrice   Float    // Precio mayorista
+  minorPrice   Float    // Precio minorista
+  
+  // Imagen (URL de Cloudinary)
+  imageUrl     String?
+  
+  // Datos adicionales para catálogo
+  ageRange     String?
+  rating       Float?   @default(0)
+  isNew        Boolean  @default(false)
+  isOffer      Boolean  @default(false)
+  
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  // Relaciones
+  saleItems    SaleItem[]
+  
+  @@map("products")
+}
+
+// ==========================================
+// MODELO DE VENTA
+// ==========================================
+model Sale {
+  id            String   @id @default(cuid())
+  saleNumber    String   @unique
+  
+  // Totales
+  subtotal      Float
+  discount      Float    @default(0)
+  total         Float
+  
+  // Tipo de venta (MAYORISTA o MINORISTA)
+  saleType      SaleType
+  
+  // Estado
+  status        SaleStatus @default(PENDIENTE)
+  
+  // Cliente (opcional)
+  customerName  String?
+  customerEmail String?
+  customerPhone String?
+  
+  // Usuario que realizó la venta
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  
+  // Productos vendidos
+  items         SaleItem[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("sales")
+}
+
+enum SaleType {
+  MAYORISTA
+  MINORISTA
+}
+
+enum SaleStatus {
+  PENDIENTE
+  COMPLETADA
+  CANCELADA
+}
+
+// ==========================================
+// ITEMS DE VENTA (Detalle)
+// ==========================================
+model SaleItem {
+  id         String  @id @default(cuid())
+  
+  saleId     String
+  sale       Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  
+  quantity   Int
+  unitPrice  Float   // Precio al momento de la venta
+  subtotal   Float
+  
+  @@map("sale_items")
+}
+
+// ==========================================
+// MODELO DE PROVEEDOR
+// ==========================================
+model Supplier {
+  id          String   @id @default(cuid())
+  name        String
+  email       String?
+  phone       String
+  address     String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("suppliers")
+}
+
+// ==========================================
+// MODELO DE CLIENTE (Para clientes registrados)
+// ==========================================
+model Customer {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String?
+  address     String?
+  nit         String?  // NIT para facturación en Bolivia
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("customers")
 }

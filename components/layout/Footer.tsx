@@ -8,8 +8,8 @@ export default function Footer() {
           {/* Logo y descripción */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center mb-4">
-              <span className="text-2xl font-bold text-blue-400">Juguetería</span>
-              <span className="text-2xl font-bold text-white">SIO</span>
+              <span className="text-2xl font-bold text-blue-400">Juguetería </span>
+              <span className="text-2xl font-bold text-white"> OASIS</span>
             </div>
             <p className="text-gray-300 mb-4 max-w-md">
               Tu tienda de confianza para los mejores juguetes educativos y divertidos. 
@@ -54,7 +54,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-          <p>&copy; 2024 Juguetería SIO. Todos los derechos reservados.</p>
+          <p>&copy; 2024 Juguetería OASIS. Todos los derechos reservados.</p>
         </div>
       </div>
     </footer>
