@@ -71,19 +71,33 @@ export default function Header() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`text-sm font-medium transition-colors duration-200 ${
-                  pathname === item.href
-                    ? 'text-blue-600'
-                    : 'text-gray-600 hover:text-blue-600'
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {navigation.map((item) => {
+              if (item.name === 'Contacto') {
+                return (
+                  <a
+                    key={item.name}
+                    href="#contacto"
+                    onClick={handleContactClick}
+                    className="text-sm font-medium transition-colors duration-200 cursor-pointer text-gray-600 hover:text-blue-600"
+                  >
+                    {item.name}
+                  </a>
+                );
+              }
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`text-sm font-medium transition-colors duration-200 ${
+                    pathname === item.href
+                      ? 'text-blue-600'
+                      : 'text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right Side - Auth & Dashboard */}
@@ -203,15 +217,33 @@ export default function Header() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-200">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="block py-2 text-gray-600 hover:text-blue-600 transition-colors"
-              >
-                {item.name}
-              </Link>
-            ))}
+            {navigation.map((item) => {
+              if (item.name === 'Contacto') {
+                return (
+                  <a
+                    key={item.name}
+                    href="#contacto"
+                    onClick={(e) => {
+                      handleContactClick(e);
+                      setMobileMenuOpen(false);
+                    }}
+                    className="block py-2 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer"
+                  >
+                    {item.name}
+                  </a>
+                );
+              }
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="block py-2 text-gray-600 hover:text-blue-600 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
             
             {user ? (
               <div className="mt-4 pt-4 border-t border-gray-200">

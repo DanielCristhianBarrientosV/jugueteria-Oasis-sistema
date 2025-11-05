@@ -57,7 +57,7 @@ const mockProducts: Product[] = [
   },
   {
     id: 5,
-    name: 'Qui de juguetes de Doctor',
+    name: 'Kit de juguetes de Doctor',
     price: 419.99,
     category: 'Educativos',
     ageRange: '9-12 años',
@@ -143,7 +143,7 @@ const mockProducts: Product[] = [
     price: 279.99,
     category: 'Educativos',
     ageRange: '6-8 años',
-    image: 'hhttps://i.ebayimg.com/thumbs/images/g/xP0AAOSw9e9oVkzN/s-l1200.jpg',
+    image: 'https://i.ebayimg.com/thumbs/images/g/xP0AAOSw9e9oVkzN/s-l1200.jpg',
     description: 'Maletín con 150 piezas: lápices, acuarelas, marcadores y más',
     stock: 22,
     rating: 4.7,
