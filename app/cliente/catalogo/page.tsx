@@ -210,7 +210,8 @@ export default function CatalogoPage() {
       return matchesSearch && matchesCategory && matchesAgeRange;
     });
 
-    // Ordenar productos
+    // Ordenar productos (crear copia para no mutar)
+    filtered = [...filtered];
     switch (filters.sortBy) {
       case 'price-low':
         filtered.sort((a, b) => a.price - b.price);

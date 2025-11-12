@@ -29,7 +29,7 @@ export default function TestimonialCard({
           ))}
         </div>
       </div>
-      <p className="text-gray-600 mb-4 italic">"{content}"</p>
+      <p className="text-gray-600 mb-4 italic">&ldquo;{content}&rdquo;</p>
       <div className="flex items-center">
         <img
           src={avatar}

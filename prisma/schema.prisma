@@ -9,230 +9,132 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// ==========================================
-// MODELO DE USUARIO (Solo 2 tipos: PERSONAL y CLIENTE)
-// ==========================================
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  name      String
+  name      String?
   password  String
-  role      Role     @default(CLIENTE)
-  active    Boolean  @default(true)
+  role      String   @default("CLIENTE") // PERSONAL or CLIENTE
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   // Relaciones
+  purchases Purchase[]
   sales     Sale[]
-  purchases Purchase[]  // ← AGREGAR ESTA LÍNEA
-  
+
   @@map("users")
 }
 
-enum Role {
-  PERSONAL  // Acceso al panel administrativo
-  CLIENTE   // Solo acceso al catálogo
-}
-
-// ==========================================
-// MODELO DE PRODUCTO
-// ==========================================
 model Product {
-  id           String   @id @default(cuid())
-  code         String   @unique
-  name         String
-  description  String?  @db.Text
-  category     String
-  supplier     String
-  
-  // Stock
-  currentStock Int
-  minStock     Int
-  
-  // Precios
-  majorPrice   Float    // Precio mayorista
-  minorPrice   Float    // Precio minorista
-  
-  // Imagen (URL de Cloudinary)
-  imageUrl     String?
-  
-  // Datos adicionales para catálogo
-  ageRange     String?
-  rating       Float?   @default(0)
-  isNew        Boolean  @default(false)
-  isOffer      Boolean  @default(false)
-  
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
+  id          String   @id @default(cuid())
+  name        String
+  description String?  @db.Text
+  price       Float
+  stock       Int      @default(0)
+  sku         String?  @unique
+  imageUrl    String?  @db.Text
+  category    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   // Relaciones
-  saleItems    SaleItem[]
   purchaseItems PurchaseItem[]
+  saleItems     SaleItem[]
+
   @@map("products")
 }
 
-// ==========================================
-// MODELO DE VENTA
-// ==========================================
-model Sale {
-  id            String   @id @default(cuid())
-  saleNumber    String   @unique
-  
-  // Totales
-  subtotal      Float
-  discount      Float    @default(0)
-  total         Float
-  
-  // Tipo de venta (MAYORISTA o MINORISTA)
-  saleType      SaleType
-  
-  // Estado
-  status        SaleStatus @default(PENDIENTE)
-  
-  // Cliente (opcional)
-  customerName  String?
-  customerEmail String?
-  customerPhone String?
-  
-  // Usuario que realizó la venta
-  userId        String
-  user          User     @relation(fields: [userId], references: [id])
-  
-  // Productos vendidos
-  items         SaleItem[]
-  
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  @@map("sales")
-}
-
-enum SaleType {
-  MAYORISTA
-  MINORISTA
-}
-
-enum SaleStatus {
-  PENDIENTE
-  COMPLETADA
-  CANCELADA
-}
-
-// ==========================================
-// ITEMS DE VENTA (Detalle)
-// ==========================================
-model SaleItem {
-  id         String  @id @default(cuid())
-  
-  saleId     String
-  sale       Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  
-  productId  String
-  product    Product @relation(fields: [productId], references: [id])
-  
-  quantity   Int
-  unitPrice  Float   // Precio al momento de la venta
-  subtotal   Float
-  
-  @@map("sale_items")
-}
-
-// ==========================================
-// MODELO DE PROVEEDOR
-// ==========================================
 model Supplier {
-  id          String   @id @default(cuid())
-  name        String
-  email       String?
-  phone       String
-  address     String?
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id        String   @id @default(cuid())
+  name      String
+  email     String?  @unique
+  phone     String?
+  address   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  purchases Purchase[]
+
   @@map("suppliers")
 }
 
-// ==========================================
-// MODELO DE CLIENTE (Para clientes registrados)
-// ==========================================
-model Customer {
-  id          String   @id @default(cuid())
-  name        String
-  email       String   @unique
-  phone       String?
-  address     String?
-  nit         String?  // NIT para facturación en Bolivia
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  @@map("customers")
-}
-
-
-// ==========================================
-// MODELO DE COMPRA (NUEVO - Para el módulo de compras)
-// ==========================================
 model Purchase {
-  id             String         @id @default(cuid())
-  purchaseNumber String         @unique  // Ej: COMP-000001
-  
-  // Proveedor
-  supplierId     String
-  supplierName   String         // Guardamos el nombre por si el proveedor se elimina
-  
-  // Usuario que registró la compra
-  userId         String
-  user           User           @relation(fields: [userId], references: [id])
-  
-  // Fechas
-  purchaseDate   DateTime       @default(now())
-  deliveryDate   DateTime?      // Fecha esperada de entrega
-  receivedDate   DateTime?      // Fecha real de recepción
-  
-  // Totales
-  subtotal       Float
-  tax            Float          @default(0)
-  total          Float
-  
-  // Estado
-  status         PurchaseStatus @default(PENDIENTE)
-  
-  // Notas
-  notes          String?        @db.Text
-  
-  // Items de la compra
-  items          PurchaseItem[]
-  
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  
+  id         String   @id @default(cuid())
+  supplierId String
+  userId     String
+  total      Float
+  notes      String?  @db.Text
+  status     String   @default("pending") // pending, completed, cancelled
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relaciones
+  supplier Supplier       @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  user     User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items    PurchaseItem[]
+
   @@map("purchases")
 }
 
-enum PurchaseStatus {
-  PENDIENTE   // Pedido realizado, esperando recepción
-  RECIBIDA    // Mercadería recibida, stock actualizado
-  CANCELADA   // Compra cancelada
+model PurchaseItem {
+  id         String  @id @default(cuid())
+  purchaseId String
+  productId  String
+  quantity   Int
+  price      Float
+
+  // Relaciones
+  purchase Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("purchase_items")
 }
 
-// ==========================================
-// ITEMS DE COMPRA (Detalle de productos comprados)
-// ==========================================
-model PurchaseItem {
+model Sale {
   id         String   @id @default(cuid())
-  
-  purchaseId String
-  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
-  
-  productId  String
-  product    Product  @relation(fields: [productId], references: [id])
-  
-  quantity   Int      // Cantidad comprada
-  unitCost   Float    // Costo unitario
-  subtotal   Float    // quantity * unitCost
-  
-  @@map("purchase_items")
+  userId     String
+  customerId String?
+  total      Float
+  notes      String?  @db.Text
+  status     String   @default("completed") // completed, cancelled, refunded
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relaciones
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  items    SaleItem[]
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id        String @id @default(cuid())
+  saleId    String
+  productId String
+  quantity  Int
+  price     Float
+
+  // Relaciones
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("sale_items")
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?  @unique
+  phone     String?
+  address   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relaciones
+  sales Sale[]
+
+  @@map("customers")
 }

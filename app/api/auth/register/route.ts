@@ -11,14 +11,14 @@ export async function POST(request: Request) {
     // Validaciones del lado del servidor
     if (!email || !password) {
       return NextResponse.json(
-        { message: 'Email y contraseña son requeridos' }, // <-- CAMBIO: Usamos 'message' en lugar de 'error'
+        { error: 'Email y contraseña son requeridos' },
         { status: 400 }
       );
     }
 
     if (password.length < 8) {
       return NextResponse.json(
-        { message: 'La contraseña debe tener al menos 8 caracteres' }, // <-- CAMBIO
+        { error: 'La contraseña debe tener al menos 8 caracteres' },
         { status: 400 }
       );
     }
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { message: 'Este email ya está registrado' }, // <-- CAMBIO
+        { error: 'Este email ya está registrado' },
         { status: 400 }
       );
     }
@@ -74,9 +74,8 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     console.error('Error en registro:', error);
-    // --- CAMBIO CLAVE AQUÍ: Aseguramos que SIEMPRE se devuelva un JSON válido ---
     return NextResponse.json(
-      { message: 'Error interno del servidor al registrar usuario' }, // <-- CAMBIO
+      { error: 'Error interno del servidor al registrar usuario' },
       { status: 500 }
     );
   }
