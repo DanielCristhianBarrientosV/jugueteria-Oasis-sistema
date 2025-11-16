@@ -13,8 +13,9 @@ const PUBLIC_PATHS = [
   '/login',
   '/register',
   '/cliente/catalogo',
+  '/dashboard',
 ];
-
+// si quiren entrar solo agregar '/dashboard', <----
 // Rutas de API públicas
 const PUBLIC_API_PATHS = [
   '/api/auth/login',
