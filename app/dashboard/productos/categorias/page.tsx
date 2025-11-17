@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+// Asumo que la ruta a tu modal es esta, ajústala si es necesario
 import CategoryModal, {
   CategoriaData,
   CategoriaSaveData,
@@ -48,9 +49,12 @@ const DUMMY_CATEGORIAS: Categoria[] = [
 export default function CategoriasPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [categorias, setCategorias] = useState<Categoria[]>(DUMMY_CATEGORIAS);
-
   const [categoriaParaEditar, setCategoriaParaEditar] =
     useState<Categoria | null>(null);
+
+  // --- ✨ 1. ESTADO DE PAGINACIÓN (VISUAL) ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(3); // Simulamos que hay 3 páginas
 
   const handleSaveCategory = (data: CategoriaSaveData) => {
     if (data.id) {
@@ -79,21 +83,29 @@ export default function CategoriasPage() {
   };
 
   const handleAbrirModalCrear = () => {
-    setCategoriaParaEditar(null); // 'null' le dice al modal que es "Modo Creación"
+    setCategoriaParaEditar(null);
     setIsModalOpen(true);
   };
 
   const handleAbrirModalEditar = (categoria: Categoria) => {
-    setCategoriaParaEditar(categoria); // Le pasamos la data de la fila
+    setCategoriaParaEditar(categoria);
     setIsModalOpen(true);
   };
-  // Función para eliminar
+
   const handleDelete = (id: number) => {
     if (
       window.confirm("¿Estás seguro de que deseas eliminar esta categoría?")
     ) {
       setCategorias((prev) => prev.filter((cat) => cat.id !== id));
     }
+  };
+
+  // --- ✨ 2. FUNCIONES PARA BOTONES (VISUAL) ---
+  const goToNextPage = () => {
+    setCurrentPage((page) => Math.min(page + 1, totalPages));
+  };
+  const goToPrevPage = () => {
+    setCurrentPage((page) => Math.max(page - 1, 1));
   };
 
   return (
@@ -132,7 +144,7 @@ export default function CategoriasPage() {
           <input
             type="text"
             placeholder="Buscar categoría..."
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-1 focus:ring-blue-500"
+            className="block w-full max-w-md pl-4 pr-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
 
@@ -192,7 +204,7 @@ export default function CategoriasPage() {
                       Editar
                     </button>
                     <button
-                      onClick={() => handleDelete(cat.id)} 
+                      onClick={() => handleDelete(cat.id)}
                       className="text-red-600 hover:text-red-900"
                     >
                       Eliminar
@@ -202,6 +214,31 @@ export default function CategoriasPage() {
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* --- ✨ 3. SECCIÓN DE PAGINACIÓN VISUAL --- */}
+        <div className="bg-white px-4 py-3 border-t border-gray-200 flex items-center justify-between sm:px-6">
+          <div className="text-sm text-gray-500">
+            Página{" "}
+            <span className="font-medium text-gray-800">{currentPage}</span> de{" "}
+            <span className="font-medium text-gray-800">{totalPages}</span>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={goToPrevPage}
+              disabled={currentPage === 1}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+            <button
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Siguiente
+            </button>
+          </div>
         </div>
       </div>
 

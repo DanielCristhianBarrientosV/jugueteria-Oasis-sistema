@@ -1,112 +1,76 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import BrandModal, { MarcaData, MarcaSaveData } from "../components/BrandModal";
+import { useState } from 'react';
+import ProviderModal, { ProviderData, ProviderSaveData } from './components/ProviderModal';
 
-type Marca = {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  estado: "Activo" | "Inactivo" | string;
-  productosCount: number;
-};
-
-const DUMMY_MARCAS: Marca[] = [
-  {
-    id: 1,
-    nombre: "Lego",
-    descripcion: "Proveedor oficial Dinamarca",
-    estado: "Activo",
-    productosCount: 45,
-  },
-  {
-    id: 2,
-    nombre: "Mattel",
-    descripcion: "Barbies y Hot Wheels",
-    estado: "Activo",
-    productosCount: 32,
-  },
-  {
-    id: 3,
-    nombre: "Hasbro",
-    descripcion: "Juegos de mesa y figuras",
-    estado: "Activo",
-    productosCount: 28,
-  },
-  {
-    id: 4,
-    nombre: "Fisher-Price",
-    descripcion: "Juguetes para bebés",
-    estado: "Inactivo",
-    productosCount: 0,
-  },
+// Datos de prueba (Seguimos usando la lista corta, la paginación es solo visual)
+const DUMMY_PROVIDERS: ProviderData[] = [
+  { id: 1, razonSocial: 'Importadora Juguetón S.R.L.', ruc: '102030401', direccion: 'Av. Principal #123', telefono: '77712345', email: 'contacto@jugueton.com', contacto: 'Juan Pérez' },
+  { id: 2, razonSocial: 'Distribuidora Kids S.A.', ruc: '908070602', direccion: 'Calle Falsa #456', telefono: '77754321', email: 'ventas@kids.com', contacto: 'Ana Gómez' },
+  { id: 3, razonSocial: 'Mattel Bolivia', ruc: '100000001', direccion: 'Equipetrol, C/ 2 Nte', telefono: '33344455', email: 'mattel@bolivia.com', contacto: 'Carlos Soliz' },
 ];
 
-export default function MarcasPage() {
+export default function ProveedoresPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [marcas, setMarcas] = useState<Marca[]>(DUMMY_MARCAS);
-  const [marcaParaEditar, setMarcaParaEditar] = useState<Marca | null>(null);
+  const [providers, setProviders] = useState<ProviderData[]>(DUMMY_PROVIDERS);
+  const [providerToEdit, setProviderToEdit] = useState<ProviderData | null>(null);
 
+  // --- ✨ LÓGICA DE PAGINACIÓN (VISUAL) ---
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(2);
+  const [totalPages, setTotalPages] = useState(5); // Simulamos que hay 5 páginas de datos
+  // ---
 
-  const handleSaveMarca = (data: MarcaSaveData) => {
+  const handleSave = (data: ProviderSaveData) => {
     if (data.id) {
-      setMarcas((prev) =>
-        prev.map((m) =>
-          m.id === data.id
-            ? { ...m, ...data, productosCount: m.productosCount }
-            : m
+      setProviders((prev) =>
+        prev.map((p) =>
+          p.id === data.id ? ({ ...p, ...data } as ProviderData) : p
         )
       );
     } else {
-      const nuevaMarca: Marca = {
-        id: Date.now(),
-        nombre: data.nombre,
-        descripcion: data.descripcion,
-        estado: data.estado,
-        productosCount: 0,
-      };
-      setMarcas([nuevaMarca, ...marcas]);
+      const newProvider: ProviderData = { ...data, id: Date.now() };
+      setProviders([newProvider, ...providers]);
     }
   };
 
   const handleDelete = (id: number) => {
-    if (window.confirm("¿Estás seguro de eliminar esta marca?")) {
-      setMarcas((prev) => prev.filter((m) => m.id !== id));
+    if (window.confirm("¿Estás seguro de eliminar este proveedor?")) {
+      setProviders((prev) => prev.filter((p) => p.id !== id));
     }
   };
 
-  const handleAbrirCrear = () => {
-    setMarcaParaEditar(null);
+  const handleOpenCreate = () => {
+    setProviderToEdit(null);
     setIsModalOpen(true);
   };
 
-  const handleAbrirEditar = (marca: Marca) => {
-    setMarcaParaEditar(marca);
+  const handleOpenEdit = (provider: ProviderData) => {
+    setProviderToEdit(provider);
     setIsModalOpen(true);
   };
-
+  
+  // --- ✨ FUNCIONES PARA LOS BOTONES (SOLO VISUAL) ---
   const goToNextPage = () => {
     setCurrentPage((page) => Math.min(page + 1, totalPages));
   };
   const goToPrevPage = () => {
     setCurrentPage((page) => Math.max(page - 1, 1));
   };
+  // ---
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">
-            Gestión de Marcas
+            Gestión de Proveedores
           </h1>
           <p className="text-gray-500 text-sm mt-1">
-            Gestiona las marcas de juguetes disponibles
+            Administra tu lista de contactos y proveedores.
           </p>
         </div>
         <button
-          onClick={handleAbrirCrear}
+          onClick={handleOpenCreate}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors shadow-sm"
         >
           <svg
@@ -122,7 +86,7 @@ export default function MarcasPage() {
               d="M12 4v16m8-8H4"
             />
           </svg>
-          <span>Nueva Marca</span>
+          <span>Nuevo Proveedor</span>
         </button>
       </div>
 
@@ -130,7 +94,7 @@ export default function MarcasPage() {
         <div className="p-4 border-b border-gray-200 bg-gray-50/50">
           <input
             type="text"
-            placeholder="Buscar marca..."
+            placeholder="Buscar por Razón Social o RUC..."
             className="block w-full max-w-md pl-4 pr-3 py-2 border border-gray-300 rounded-lg bg-white outline-none focus:ring-1 focus:ring-blue-500"
           />
         </div>
@@ -139,17 +103,17 @@ export default function MarcasPage() {
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Marca
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
+                  Razón Social
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Descripción
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
+                  Contacto
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estado
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
+                  Teléfono
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Productos
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">
+                  Email
                 </th>
                 <th className="relative px-6 py-3">
                   <span className="sr-only">Acciones</span>
@@ -157,44 +121,35 @@ export default function MarcasPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {marcas.map((marca) => (
+              {providers.map((prov) => (
                 <tr
-                  key={marca.id}
+                  key={prov.id}
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-semibold text-gray-900">
-                      {marca.nombre}
+                      {prov.razonSocial}
                     </div>
+                    <div className="text-xs text-gray-500">RUC: {prov.ruc}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500 truncate max-w-xs">
-                      {marca.descripcion}
-                    </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {prov.contacto}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        marca.estado === "Activo"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {marca.estado}
-                    </span>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {prov.telefono}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {marca.productosCount} items
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {prov.email}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
-                      onClick={() => handleAbrirEditar(marca)}
+                      onClick={() => handleOpenEdit(prov)}
                       className="text-blue-600 hover:text-blue-900 mr-4"
                     >
                       Editar
                     </button>
                     <button
-                      onClick={() => handleDelete(marca.id)}
+                      onClick={() => handleDelete(prov.id)}
                       className="text-red-600 hover:text-red-900"
                     >
                       Eliminar
@@ -205,22 +160,21 @@ export default function MarcasPage() {
             </tbody>
           </table>
         </div>
-
+        
+        {/* --- ✨ SECCIÓN DE PAGINACIÓN VISUAL --- */}
         <div className="bg-white px-4 py-3 border-t border-gray-200 flex items-center justify-between sm:px-6">
           <div className="text-sm text-gray-500">
-            Página{" "}
-            <span className="font-medium text-gray-800">{currentPage}</span> de{" "}
-            <span className="font-medium text-gray-800">{totalPages}</span>
+            Página <span className="font-medium text-gray-800">{currentPage}</span> de <span className="font-medium text-gray-800">{totalPages}</span>
           </div>
           <div className="flex gap-2">
-            <button
+            <button 
               onClick={goToPrevPage}
               disabled={currentPage === 1}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Anterior
             </button>
-            <button
+            <button 
               onClick={goToNextPage}
               disabled={currentPage === totalPages}
               className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -229,13 +183,15 @@ export default function MarcasPage() {
             </button>
           </div>
         </div>
+        {/* --- FIN DE SECCIÓN --- */}
+
       </div>
 
-      <BrandModal
+      <ProviderModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveMarca}
-        marcaEditar={marcaParaEditar}
+        onSave={handleSave}
+        providerToEdit={providerToEdit}
       />
     </div>
   );
