@@ -27,14 +27,14 @@ export default function LandingPage() {
       id: 3,
       name: 'Hot Wheels Pista Extrema',
       price: 345.99,
-      image: 'https://http2.mlstatic.com/D_NQ_NP_670063-MLA89683253713_082025-O.webp',
+      image: 'https://http2.mlstatic.com/D_NQ_NP_670063-MLA8968353713_082025-O.webp',
       category: 'Vehículos'
     },
     {
       id: 4,
       name: 'Kit de juguetes de Doctor',
       price: 419.99,
-      image: 'https://m.media-amazon.com/images/I/71XswLSDL0L._AC_UF894,1000_QL80_.jpg',
+      image: 'https://m.media-amazon.com/images/I/71XswSdL0L._AC_UF894,1000_QL80_.jpg',
       category: 'Educativos',
       isNew: true
     }
@@ -196,11 +196,13 @@ export default function LandingPage() {
                   className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
                 >
                   <div className="relative">
-                    <div className="bg-gray-100 h-48 overflow-hidden">
+                    {/* APLICACIÓN DE LA CORRECCIÓN AQUÍ */}
+                    <div className="bg-gray-100 h-48 overflow-hidden relative"> 
                       <Image
                         src={product.image}
                         alt={product.name}
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-500"
+                        fill // Añadir la propiedad 'fill'
+                        className="object-cover hover:scale-110 transition-transform duration-500" // Ajustar className
                       />
                     </div>
                     {product.isNew && (
