@@ -1,40 +1,72 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '../../../lib/prisma';
-import bcrypt from 'bcryptjs';
-import { z } from 'zod';
+// app/api/auth/register/route.ts
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { hashPassword } from '@/lib/auth';
 
-const registerSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(8, 'Password debe tener al menos 8 caracteres'),
-  name: z.string().optional()
-});
-
-export async function POST(req: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await req.json();
-    const { email, password, name } = registerSchema.parse(body);
+    const body = await request.json();
+    const { email, password, name } = body;
 
-    const existingUser  = await prisma.user.findUnique({ where: { email } });
-    if (existingUser ) {
-      return NextResponse.json({ error: 'Email ya registrado' }, { status: 400 });
+    // Validaciones
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: 'Email y contraseña son requeridos' },
+        { status: 400 }
+      );
     }
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: 'La contraseña debe tener al menos 8 caracteres' },
+        { status: 400 }
+      );
+    }
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name,
-        password: hashedPassword,
-        role: 'CLIENTE'  // Solo clientes por registro
-      }
+    // Verificar si el email ya existe
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
     });
 
-    return NextResponse.json({ user: { id: user.id, email, name, role: user.role } }, { status: 201 });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.issues[0].message }, { status: 400 });
+    if (existingUser) {
+      return NextResponse.json(
+        { error: 'Este email ya está registrado' },
+        { status: 400 }
+      );
     }
-    return NextResponse.json({ error: 'Error interno' }, { status: 500 });
+
+    // Hashear contraseña
+    const hashedPassword = await hashPassword(password);
+
+    // Crear usuario (siempre como CLIENTE por defecto)
+    const user = await prisma.user.create({
+      data: {
+        email: email.toLowerCase(),
+        name: name || email.split('@')[0],
+        password: hashedPassword,
+        role: 'CLIENTE', // Todos los registros nuevos son CLIENTE
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    return NextResponse.json(
+      {
+        message: 'Usuario registrado exitosamente',
+        user,
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error('Error en registro:', error);
+    return NextResponse.json(
+      { error: 'Error al registrar usuario' },
+      { status: 500 }
+    );
   }
 }

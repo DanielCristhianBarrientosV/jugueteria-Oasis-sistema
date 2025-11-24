@@ -31,7 +31,13 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files (can opt-in for committing if needed)
-.env*
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+# Pero permitir archivos .example
+!.env.example
 
 # vercel
 .vercel
@@ -41,3 +47,31 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
+
+# other files
+WARP.md
+CLAUDE.md
+.cursorrules
+.cursor/
+.github/copilot-instructions.md
+
+# Testing and development reports
+TESTING_REPORT.md
+TEST_*.md
+
+# Local development scripts
+start-db.sh
+docker-compose.yml
+docker-compose.*.yml
+# Pero permitir archivos .example
+!docker-compose.example.yml
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Temporary files
+*.tmp
+*.temp
+/tmp/
