@@ -1,6 +1,7 @@
 // app/dashboard/reportes/page.tsx
 // Este es el componente que se renderiza cuando la URL es exactamente /dashboard/reportes
 // Muestra un mensaje para que el usuario seleccione un sub-reporte.
+export const dynamic = 'force-dynamic';
 
 export default function ReportesHomePage() {
   return (
