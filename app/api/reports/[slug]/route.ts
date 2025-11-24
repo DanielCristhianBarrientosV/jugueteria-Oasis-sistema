@@ -63,7 +63,8 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
   }
 
   // 2. Generar el reporte en el formato solicitado
-  let fileBuffer: Buffer | null = null;
+  // admitir tanto Buffer (Node) como Uint8Array (alguna librerías pueden devolver esto)
+  let fileBuffer: Buffer | Uint8Array | null = null;
   let contentType: string;
   let fileName: string;
 
@@ -89,7 +90,8 @@ export async function GET(request: NextRequest, { params }: { params: { slug: st
   }
 
   // 3. Devolver el archivo como respuesta descargable
-  return new NextResponse(fileBuffer, {
+  // Convertir Buffer a Uint8Array para ajustarse a BodyInit esperado por NextResponse
+  return new NextResponse(new Uint8Array(fileBuffer), {
     headers: {
       'Content-Type': contentType,
       'Content-Disposition': `attachment; filename="${fileName}"`,

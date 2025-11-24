@@ -35,30 +35,25 @@ export default function ReportsLayout({ children }: { children: React.ReactNode 
     } else {
       params.delete('range');
     }
-    // Usamos `router.push` para que los cambios de rango de fecha sean navegables en el historial
     router.push(`${pathname}?${params.toString()}`);
   }, [dateRange, pathname, router, searchParams]);
 
   const handleExport = async (format: 'PDF' | 'Excel') => {
-    setIsExporting(true); // Activar estado de carga
-    setExportFormat(format); // Mostrar formato en el botón
+    setIsExporting(true);
+    setExportFormat(format);
 
     try {
-      // Extraer el tipo de reporte actual de la URL
-      // Por ejemplo, de '/dashboard/reportes/general' obtenemos 'general'
       const reportTypeSegment = pathname.split('/dashboard/reportes/')[1];
 
-      // Si estamos en la página `/dashboard/reportes` sin un sub-reporte seleccionado
       if (!reportTypeSegment || reportTypeSegment === '') {
         alert('Por favor, selecciona un tipo de reporte (Ej: General, Productos) antes de exportar.');
         return;
       }
 
       const currentParams = new URLSearchParams(searchParams);
-      currentParams.set('format', format.toLowerCase()); // 'pdf' o 'excel'
-      currentParams.set('range', dateRange); // Asegurarse de que el rango esté en los parámetros
+      currentParams.set('format', format.toLowerCase());
+      currentParams.set('range', dateRange);
 
-      // Realizar la llamada a tu API Route de backend
       const response = await fetch(`/api/reports/${reportTypeSegment}?${currentParams.toString()}`);
 
       if (response.ok) {
@@ -66,11 +61,12 @@ export default function ReportsLayout({ children }: { children: React.ReactNode 
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${reportTypeSegment}-reporte-${dateRange}.${format.toLowerCase()}`;
+        // ===> CAMBIO CRUCIAL AQUÍ PARA LA EXTENSIÓN DE EXCEL <===
+        a.download = `${reportTypeSegment}-reporte-${dateRange}.${format === 'Excel' ? 'xlsx' : format.toLowerCase()}`;
         document.body.appendChild(a);
-        a.click(); // Disparar la descarga
-        a.remove(); // Limpiar el elemento <a>
-        window.URL.revokeObjectURL(url); // Liberar el objeto URL
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
         alert('Reporte exportado con éxito!');
       } else {
         const errorText = await response.text();
@@ -80,8 +76,8 @@ export default function ReportsLayout({ children }: { children: React.ReactNode 
       console.error('Error durante la exportación:', error);
       alert('Ocurrió un error inesperado al intentar exportar el reporte.');
     } finally {
-      setIsExporting(false); // Desactivar estado de carga
-      setExportFormat(null); // Limpiar el formato de exportación
+      setIsExporting(false);
+      setExportFormat(null);
     }
   };
 
@@ -102,10 +98,10 @@ export default function ReportsLayout({ children }: { children: React.ReactNode 
             </div>
           </div>
           <button
-            onClick={() => handleExport('PDF')} // Botón principal para exportar
+            onClick={() => handleExport('PDF')}
             className="px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-colors text-white"
             style={{ backgroundColor: COLOR_SUCCESS }}
-            disabled={isExporting || isBaseReportPath} // Deshabilitar si se está exportando o si no hay reporte seleccionado
+            disabled={isExporting || isBaseReportPath}
           >
             {isExporting && exportFormat ? `Exportando ${exportFormat}...` : <><Download className="w-5 h-5" /> Exportar Reporte</>}
           </button>
@@ -121,7 +117,7 @@ export default function ReportsLayout({ children }: { children: React.ReactNode 
             <select
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-oasis-primary" // Usar custom color de Tailwind
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-oasis-primary"
             >
               <option value="today">Hoy</option>
               <option value="week">Esta Semana</option>
@@ -135,7 +131,7 @@ export default function ReportsLayout({ children }: { children: React.ReactNode 
               <span className="font-semibold text-gray-700">Tipo:</span>
             </div>
 
-            <div className="ml-auto flex gap-2"> {/* Botones de exportación individuales */}
+            <div className="ml-auto flex gap-2">
               <button
                 onClick={() => handleExport('PDF')}
                 className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-semibold text-gray-700"
@@ -164,7 +160,7 @@ export default function ReportsLayout({ children }: { children: React.ReactNode 
                     href={`${tab.href}?${searchParams.toString()}`}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       isActiveTab
-                        ? 'text-white bg-oasis-primary' // Usar custom color de Tailwind
+                        ? 'text-white bg-oasis-primary'
                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                     }`}
                   >
