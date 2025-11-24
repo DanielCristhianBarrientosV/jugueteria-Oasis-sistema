@@ -37,10 +37,10 @@ const nextConfig = {
     //   },
     // ]
   },
-  esLint: {
+  eslint: {
     ignoreDuringBuilds: true,
   },
-  typeScript: {
+  typescript: {
     ignoreBuildErrors: true,
   },
 };
