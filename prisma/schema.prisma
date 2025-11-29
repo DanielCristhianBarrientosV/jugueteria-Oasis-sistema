@@ -3,14 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
 }
-
-// ==============================================
-// 1. MÓDULO PERSONA (Núcleo)
-// ==============================================
 
 model Persona {
   id          Int     @id @default(autoincrement()) @map("persona_id")
