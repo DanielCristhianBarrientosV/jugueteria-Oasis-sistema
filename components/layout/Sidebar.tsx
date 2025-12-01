@@ -8,8 +8,9 @@ import { useState } from 'react';
 
 const Sidebar = () => {
   const pathname = usePathname();
-  // Estado para controlar la expansión del submenú de Reportes
+  // Estados para controlar la expansión de los submenús
   const [reportsExpanded, setReportsExpanded] = useState(pathname.startsWith('/dashboard/reportes'));
+  const [productsExpanded, setProductsExpanded] = useState(pathname.startsWith('/dashboard/productos')); // NUEVO ESTADO
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Colores de tu paleta
@@ -28,19 +29,27 @@ const Sidebar = () => {
       href: '/dashboard',
     },
     {
-      title: 'Productos',
+      title: 'Productos', // ¡AHORA CON SUB-MENÚ!
       icon: (
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
         </svg>
       ),
-      href: '/dashboard/productos',
-      // Aquí podrías añadir sub-items para productos si los tuvieras (ej. Categorías, Marcas)
-      // children: [
-      //   { title: 'Listado', href: '/dashboard/productos' },
-      //   { title: 'Categorías', href: '/dashboard/productos/categorias' },
-      //   { title: 'Marcas', href: '/dashboard/productos/marcas' },
-      // ]
+      href: '/dashboard/productos', // Ruta base para el módulo de productos
+      children: [
+        { title: 'Listado', href: '/dashboard/productos' },
+        { title: 'Categorías', href: '/dashboard/productos/categorias' },
+        { title: 'Marcas', href: '/dashboard/productos/marcas' },
+      ],
+    },
+    { // NUEVO: Módulo de Clientes (lo agregamos como ítem principal, no desplegable por ahora)
+      title: 'Clientes',
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+      href: '/dashboard/clientes',
     },
     {
       title: 'Compras',
@@ -130,7 +139,7 @@ const Sidebar = () => {
           title={isCollapsed ? 'Expandir' : 'Contraer'}
         >
           <svg
-            className={`w-5 h-5 text-gray-600 group-hover:text-[${COLOR_PRIMARY}] transition-all ${ // Usamos COLOR_PRIMARY para el hover del toggle
+            className={`w-5 h-5 text-gray-600 group-hover:text-[${COLOR_PRIMARY}] transition-all ${
               isCollapsed ? 'rotate-180' : ''
             }`}
             fill="none"
@@ -160,13 +169,21 @@ const Sidebar = () => {
                 href={item.href}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
                   isActive(item.href)
-                    ? `bg-[${COLOR_PRIMARY}]/10 text-[${COLOR_PRIMARY}] shadow-sm`
+                    ? `bg-oasis-primary-light text-oasis-primary shadow-sm`
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
-                onClick={item.children ? (e) => {
-                    e.preventDefault(); // Evita la navegación directa si tiene hijos
-                    setReportsExpanded(!reportsExpanded); // Toggle del submenú
-                } : undefined}
+                // Lógica para alternar la expansión del submenú
+                onClick={item.children
+                  ? (e) => {
+                      e.preventDefault();
+                      if (item.href === '/dashboard/reportes') {
+                        setReportsExpanded(!reportsExpanded);
+                      } else if (item.href === '/dashboard/productos') { // NUEVA LÓGICA
+                        setProductsExpanded(!productsExpanded);
+                      }
+                    }
+                  : undefined
+                }
               >
                 {/* Indicador lateral para item activo */}
                 {isActive(item.href) && (
@@ -175,7 +192,7 @@ const Sidebar = () => {
 
                 <span className={`flex-shrink-0 ${
                   isActive(item.href)
-                    ? `text-[${COLOR_PRIMARY}]`
+                    ? `text-oasis-primary`
                     : 'text-gray-500 group-hover:text-gray-700'
                 }`}>
                   {item.icon}
@@ -189,7 +206,9 @@ const Sidebar = () => {
                 {!isCollapsed && item.children && (
                   <svg
                     className={`w-4 h-4 ml-auto text-gray-400 transition-transform duration-200 ${
-                      reportsExpanded ? 'rotate-180' : ''
+                      (item.href === '/dashboard/reportes' && reportsExpanded) ||
+                      (item.href === '/dashboard/productos' && productsExpanded) // Condición para expandir el icono
+                        ? 'rotate-180' : ''
                     }`}
                     fill="none"
                     stroke="currentColor"
@@ -208,8 +227,8 @@ const Sidebar = () => {
               </Link>
             </div>
 
-            {/* Sub-menú para Reportes */}
-            {!isCollapsed && item.children && reportsExpanded && (
+            {/* Sub-menú para Productos */}
+            {!isCollapsed && item.children && item.href === '/dashboard/productos' && productsExpanded && ( // Condición de expansión
               <div className="ml-6 border-l border-gray-200 pl-3 space-y-1 mt-1">
                 {item.children.map((subItem) => (
                   <Link
@@ -217,15 +236,41 @@ const Sidebar = () => {
                     href={subItem.href}
                     className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group relative ${
                       pathname === subItem.href
-                        ? `bg-[${COLOR_ACCENT}]/10 text-[${COLOR_ACCENT}]` // Usamos COLOR_ACCENT para sub-items activos
+                        ? `bg-oasis-accent-light text-oasis-accent`
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
                   >
-                    {pathname === subItem.href && ( // Indicador para sub-item activo
-                      <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-[${COLOR_ACCENT}] rounded-r-full`} />
+                    {pathname === subItem.href && (
+                      <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-oasis-accent rounded-r-full`} />
                     )}
                     <span className={`text-sm ${
-                        pathname === subItem.href ? `text-[${COLOR_ACCENT}]` : 'text-gray-500 group-hover:text-gray-700'
+                        pathname === subItem.href ? `text-oasis-accent` : 'text-gray-500 group-hover:text-gray-700'
+                    }`}>
+                      {subItem.title}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Sub-menú para Reportes */}
+            {!isCollapsed && item.children && item.href === '/dashboard/reportes' && reportsExpanded && ( // Condición de expansión
+              <div className="ml-6 border-l border-gray-200 pl-3 space-y-1 mt-1">
+                {item.children.map((subItem) => (
+                  <Link
+                    key={subItem.href}
+                    href={subItem.href}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group relative ${
+                      pathname === subItem.href
+                        ? `bg-oasis-accent-light text-oasis-accent`
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                  >
+                    {pathname === subItem.href && (
+                      <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-oasis-accent rounded-r-full`} />
+                    )}
+                    <span className={`text-sm ${
+                        pathname === subItem.href ? `text-oasis-accent` : 'text-gray-500 group-hover:text-gray-700'
                     }`}>
                       {subItem.title}
                     </span>
@@ -248,7 +293,6 @@ const Sidebar = () => {
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-2">
             Accesos Rápidos
           </p>
-          {/* La opción "Ver como Cliente" se mantiene comentada */}
           <Link
             href="/"
             className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-50 transition-colors group"

@@ -1,37 +1,28 @@
 // lib/report-generators/pdf.ts
 import PDFDocument from 'pdfkit';
 import { format } from 'date-fns';
-import path from 'path'; // Importar 'path' para manejar rutas de archivos
-import fs from 'fs';    // Importar 'fs' para leer el archivo de la fuente
-
+import path from 'path';
+import fs from 'fs';
 
 interface ReportDataParams {
   range: string;
 }
 
-// ===> CÓDIGO CORREGIDO: LA RUTA AHORA INCLUYE LA CARPETA 'fonts' <===
-// Y usa el nombre exacto de la fuente que generó el error.
+// === VERIFICAR ESTA RUTA DE FUENTE NUEVAMENTE ===
+// Asegúrate de que el archivo 'Roboto-Italic-VariableFont_wdth,wght.ttf' existe en 'lib/fonts/'
 const FONT_PATH = path.join(process.cwd(), 'lib', 'fonts', 'Roboto-Italic-VariableFont_wdth,wght.ttf');
-// Si necesitas una versión "bold", deberías tener otro archivo .ttf para ella
-// Por ejemplo: const FONT_BOLD_PATH = path.join(process.cwd(), 'lib', 'fonts', 'Roboto-Bold-VariableFont_wdth,wght.ttf');
 
-
-// Función para verificar si la fuente existe (útil para debug)
 function checkFontExists(fontPath: string) {
-    // Mantén este console.log, es muy útil para verificar la ruta en la terminal del servidor
-    console.log(`Intentando cargar la fuente desde: ${fontPath}`);
+    console.log(`Intentando cargar la fuente PDF desde: ${fontPath}`);
     if (!fs.existsSync(fontPath)) {
-        console.error(`ERROR: La fuente no se encontró en: ${fontPath}`);
+        console.error(`ERROR: La fuente PDF no se encontró en: ${fontPath}`);
         throw new Error(`Font file not found: ${fontPath}`);
     }
 }
 
 export async function generatePdfReport(reportType: string, data: any, params: ReportDataParams): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    // Verificar que la fuente principal exista antes de inicializar el documento
     checkFontExists(FONT_PATH);
-    // Si tuvieras una fuente bold, también la verificarías aquí:
-    // checkFontExists(FONT_BOLD_PATH);
 
     const doc = new PDFDocument({ margin: 50 });
     const buffers: Buffer[] = [];
@@ -40,15 +31,9 @@ export async function generatePdfReport(reportType: string, data: any, params: R
     doc.on('end', () => resolve(Buffer.concat(buffers)));
     doc.on('error', reject);
 
-    // ===> REGISTRAR LA FUENTE PERSONALIZADA <===
-    // Usa 'CustomFont' para la fuente regular
     doc.registerFont('CustomFont', FONT_PATH);
-    // Si tuvieras una fuente bold separada, la registrarías así:
-    // doc.registerFont('CustomFont-Bold', FONT_BOLD_PATH);
-
 
     // Header del documento PDF
-    // ===> USAR 'CustomFont' EN TODAS LAS LLAMADAS A FONT <===
     doc.fontSize(24).font('CustomFont').text(`Reporte de ${reportType.toUpperCase()}`, { align: 'center' });
     doc.fontSize(12).font('CustomFont').text(`Generado el: ${format(new Date(), 'dd/MM/yyyy HH:mm')} | Período: ${params.range}`, { align: 'center' });
     doc.moveDown(2);
@@ -63,7 +48,6 @@ export async function generatePdfReport(reportType: string, data: any, params: R
 
       doc.fontSize(18).font('CustomFont').text('Ventas Mensuales', { underline: true }).moveDown(0.5);
       doc.fontSize(10).font('CustomFont').text('Mes - Ventas (Bs.) - Productos Vendidos');
-      // No necesitas doc.font('Helvetica-Bold') aquí, ya que 'CustomFont' ya está seteada.
       data.ventasMensuales.forEach((item: any) => {
         doc.fontSize(10).font('CustomFont').text(`${item.mes} - ${item.ventas.toLocaleString()} - ${item.productos}`);
       });
@@ -74,12 +58,46 @@ export async function generatePdfReport(reportType: string, data: any, params: R
       data.ventasPorCategoria.forEach((item: any) => {
         doc.fontSize(10).font('CustomFont').text(`${item.categoria} - ${item.valor}% - ${item.monto.toLocaleString()}`);
       });
+      doc.moveDown(1);
+
+      // === NUEVA SECCIÓN DE HISTORIAL PARA PDF ===
+      if (data.activityLog && data.activityLog.length > 0) {
+        doc.addPage(); // Puedes añadir una nueva página para el historial si es largo
+        doc.fontSize(18).font('CustomFont').text('Bitácora de Actividades', { underline: true }).moveDown(0.5);
+        doc.fontSize(10).font('CustomFont').text('Fecha/Hora - Acción - Usuario');
+        data.activityLog.forEach((log: any) => {
+            doc.fontSize(10).font('CustomFont').text(`${log.timestamp} - ${log.action} - ${log.user}`);
+        });
+      }
+      // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
     } else if (reportType === 'productos') {
       doc.fontSize(18).font('CustomFont').text('Productos Más Vendidos', { underline: true }).moveDown(0.5);
       doc.fontSize(10).font('CustomFont').text('# - Producto - Cantidad Vendida - Ingresos (Bs.)');
       data.productosMasVendidos.forEach((item: any, index: number) => {
         doc.fontSize(10).font('CustomFont').text(`${index + 1}. ${item.nombre} - ${item.cantidad} uds. - ${item.ingresos.toLocaleString()} Bs.`);
       });
+      doc.moveDown(1);
+
+      doc.fontSize(18).font('CustomFont').text('Stock Actual de Productos', { underline: true }).moveDown(0.5);
+      doc.fontSize(10).font('CustomFont').text('Producto - Stock Actual - Stock Mínimo - Estado');
+      data.stockActual.forEach((item: any) => {
+        const status = item.stockActual < item.minStock ? 'Bajo Stock' : 'En Stock';
+        doc.fontSize(10).font('CustomFont').text(`${item.nombre} - ${item.stockActual} uds. - ${item.minStock} uds. - ${status}`);
+      });
+      doc.moveDown(1);
+
+      // === NUEVA SECCIÓN DE HISTORIAL PARA PDF (Productos) ===
+      if (data.activityLog && data.activityLog.length > 0) {
+        doc.addPage();
+        doc.fontSize(18).font('CustomFont').text('Bitácora de Actividades de Productos', { underline: true }).moveDown(0.5);
+        doc.fontSize(10).font('CustomFont').text('Fecha/Hora - Acción - Usuario - Producto ID');
+        data.activityLog.forEach((log: any) => {
+            doc.fontSize(10).font('CustomFont').text(`${log.timestamp} - ${log.action} - ${log.user} - ${log.productId || 'N/A'}`);
+        });
+      }
+      // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
     } else if (reportType === 'ventas') {
         doc.fontSize(18).font('CustomFont').text('Ventas Diarias', { underline: true }).moveDown(0.5);
         doc.fontSize(10).font('CustomFont').text('Día - Total (Bs.) - Items');
@@ -93,6 +111,18 @@ export async function generatePdfReport(reportType: string, data: any, params: R
         data.ventasPorVendedor.forEach((item: any) => {
             doc.fontSize(10).font('CustomFont').text(`${item.vendedor} - ${item.ventas.toLocaleString()} - ${item.comision.toLocaleString()}`);
         });
+        doc.moveDown(1);
+
+        // === NUEVA SECCIÓN DE HISTORIAL PARA PDF (Ventas) ===
+        if (data.salesHistory && data.salesHistory.length > 0) {
+            doc.addPage();
+            doc.fontSize(18).font('CustomFont').text('Historial Detallado de Ventas', { underline: true }).moveDown(0.5);
+            doc.fontSize(10).font('CustomFont').text('ID Venta - Cliente - Total (Bs.) - Fecha - Estado');
+            data.salesHistory.forEach((sale: any) => {
+                doc.fontSize(10).font('CustomFont').text(`${sale.id} - ${sale.customer} - ${sale.total.toLocaleString()} - ${sale.date} - ${sale.status}`);
+            });
+        }
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     } else if (reportType === 'inventario') {
         doc.fontSize(18).font('CustomFont').text('Stock por Categoría', { underline: true }).moveDown(0.5);
         doc.fontSize(10).font('CustomFont').text('Categoría - Unidades en Stock - Valor Total (Bs.)');
@@ -102,10 +132,22 @@ export async function generatePdfReport(reportType: string, data: any, params: R
         doc.moveDown(1);
 
         doc.fontSize(18).font('CustomFont').text('Productos con Stock Crítico', { underline: true }).moveDown(0.5);
-        doc.fontSize(10).font('CustomFont').text('Producto - Stock Actual - Stock Mínimo');
+        doc.fontSize(10).font('CustomFont').text('Producto - Stock Actual - Stock Mínimo - Ubicación');
         data.productosBajoStock.forEach((item: any) => {
-            doc.fontSize(10).font('CustomFont').text(`${item.nombre} - ${item.stock} uds. - ${item.minStock} uds.`);
+            doc.fontSize(10).font('CustomFont').text(`${item.nombre} - ${item.stock} uds. - ${item.minStock} uds. - ${item.ubicacion || 'N/A'}`);
         });
+        doc.moveDown(1);
+
+        // === NUEVA SECCIÓN DE HISTORIAL PARA PDF (Inventario) ===
+        if (data.inventoryMovements && data.inventoryMovements.length > 0) {
+            doc.addPage();
+            doc.fontSize(18).font('CustomFont').text('Movimientos de Inventario', { underline: true }).moveDown(0.5);
+            doc.fontSize(10).font('CustomFont').text('Fecha/Hora - Producto - Tipo - Cantidad - Usuario');
+            data.inventoryMovements.forEach((mov: any) => {
+                doc.fontSize(10).font('CustomFont').text(`${mov.timestamp} - ${mov.product} - ${mov.type} - ${mov.quantity} - ${mov.user}`);
+            });
+        }
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     } else if (reportType === 'clientes') {
         doc.fontSize(18).font('CustomFont').text('Clientes por Tipo', { underline: true }).moveDown(0.5);
         doc.fontSize(10).font('CustomFont').text('Tipo - Cantidad - Porcentaje');
@@ -119,6 +161,18 @@ export async function generatePdfReport(reportType: string, data: any, params: R
         data.clientesTopCompras.forEach((item: any) => {
             doc.fontSize(10).font('CustomFont').text(`${item.cliente} - ${item.compras} - ${item.totalGastado.toLocaleString()} Bs.`);
         });
+        doc.moveDown(1);
+
+        // === NUEVA SECCIÓN DE HISTORIAL PARA PDF (Clientes) ===
+        if (data.clientActivityLog && data.clientActivityLog.length > 0) {
+            doc.addPage();
+            doc.fontSize(18).font('CustomFont').text('Bitácora de Clientes', { underline: true }).moveDown(0.5);
+            doc.fontSize(10).font('CustomFont').text('Fecha/Hora - Cliente - Acción - Usuario');
+            data.clientActivityLog.forEach((log: any) => {
+                doc.fontSize(10).font('CustomFont').text(`${log.timestamp} - ${log.clientName} - ${log.action} - ${log.user}`);
+            });
+        }
+        // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     }
 
     doc.end();
