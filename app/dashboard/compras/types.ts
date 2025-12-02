@@ -6,9 +6,15 @@ export interface Supply {
     providerName: string;
     totalAmount: number; // Calculado o estimado
     itemCount: number;
-    proveedor: string; // Add this field to match usage in ComprasClient
-    fecha: string;     // Add this field to match usage in ComprasClient
-    total: number;     // Add this field to match usage in ComprasClient
-    items: number;     // Add this field to match usage in ComprasClient
-    estado: string;    // Add this field to match usage in ComprasClient
+    proveedor: string;
+    fecha: string;
+    total: number;
+    items: number;
+    estado: string;
+    details?: {
+        producto: string;
+        cantidad: number;
+        precioUnitario: number;
+        subtotal: number;
+    }[];
 }

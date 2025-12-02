@@ -71,3 +71,52 @@ export async function createCompraAction(proveedorId: number, items: CompraItem[
         return { success: false, error: "Error al registrar la compra" };
     }
 }
+
+export async function deleteCompraAction(id: number) {
+    try {
+        // 1. Obtener los detalles para revertir el stock
+        const suministro = await prisma.suministro.findUnique({
+            where: { id },
+            include: { detalles: true }
+        });
+
+        if (!suministro) {
+            return { success: false, error: "Compra no encontrada" };
+        }
+
+        // 2. Revertir Stock (Restar)
+        for (const detalle of suministro.detalles) {
+            if (detalle.productoId) {
+                const inventario = await prisma.inventario.findFirst({
+                    where: { productoId: detalle.productoId }
+                });
+
+                if (inventario) {
+                    await prisma.inventario.update({
+                        where: { id: inventario.id },
+                        data: { stock: { decrement: (detalle.cantidad || 0) } }
+                    });
+                }
+            }
+        }
+
+        // 3. Eliminar Suministro (Cascade delete debería eliminar detalles si está configurado, 
+        // pero por seguridad eliminamos detalles primero si no hay cascade)
+        await prisma.detalleSuministro.deleteMany({
+            where: { suministroId: id }
+        });
+
+        await prisma.suministro.delete({
+            where: { id }
+        });
+
+        revalidatePath("/dashboard/compras");
+        revalidatePath("/dashboard/inventario");
+        revalidatePath("/dashboard/productos");
+
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting purchase:", error);
+        return { success: false, error: "Error al eliminar la compra" };
+    }
+}

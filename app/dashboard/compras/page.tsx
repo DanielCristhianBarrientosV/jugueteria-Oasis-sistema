@@ -29,7 +29,13 @@ export default async function ComprasPage() {
         fecha: s.fecha ? s.fecha.toISOString() : new Date().toISOString(),
         total: s.total ? Number(s.total) : 0,
         items: s.detalles.length,
-        estado: 'Completado'
+        estado: 'Completado',
+        details: s.detalles.map(d => ({
+            producto: d.producto?.nombre || 'Producto Eliminado',
+            cantidad: d.cantidad || 0,
+            precioUnitario: Number(d.precioUnitario || 0),
+            subtotal: (d.cantidad || 0) * Number(d.precioUnitario || 0)
+        }))
     }));
 
     // Obtener datos para el modal de creación
