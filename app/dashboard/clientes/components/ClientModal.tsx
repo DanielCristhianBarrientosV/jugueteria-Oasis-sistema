@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { Client, ClientFormData } from '../types';
-import { X } from 'lucide-react'; 
+import { X } from 'lucide-react';
 
 type ClientModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: ClientFormData & { id?: string; isActive?: boolean }) => void;
+  onSave: (data: ClientFormData & { id?: number; isActive?: boolean }) => void;
   clientToEdit?: Client | null;
 };
 
@@ -23,10 +23,10 @@ export default function ClientModal({ isOpen, onClose, onSave, clientToEdit }: C
       setError(null);
       if (clientToEdit) {
         setFormData({
-            name: clientToEdit.name,
-            email: clientToEdit.email,
-            phone: clientToEdit.phone,
-            address: clientToEdit.address,
+          name: clientToEdit.name,
+          email: clientToEdit.email,
+          phone: clientToEdit.phone,
+          address: clientToEdit.address,
         });
         setIsActive(clientToEdit.isActive);
       } else {
@@ -66,14 +66,14 @@ export default function ClientModal({ isOpen, onClose, onSave, clientToEdit }: C
             <X className="w-6 h-6" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100 font-medium">
               {error}
             </div>
           )}
-          
+
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Nombre Completo</label>
             <input
@@ -81,34 +81,34 @@ export default function ClientModal({ isOpen, onClose, onSave, clientToEdit }: C
               type="text"
               className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-gray-700"
               value={formData.name}
-              onChange={e => setFormData({...formData, name: e.target.value})}
+              onChange={e => setFormData({ ...formData, name: e.target.value })}
               placeholder="Ej: Ana García"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-             <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
-                <input
-                  required
-                  type="email"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-gray-700"
-                  value={formData.email}
-                  onChange={e => setFormData({...formData, email: e.target.value})}
-                  placeholder="ana@ejemplo.com"
-                />
-             </div>
-             <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Teléfono</label>
-                <input
-                  required
-                  type="text"
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-gray-700"
-                  value={formData.phone}
-                  onChange={e => setFormData({...formData, phone: e.target.value})}
-                  placeholder="77712345"
-                />
-             </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+              <input
+                required
+                type="email"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-gray-700"
+                value={formData.email}
+                onChange={e => setFormData({ ...formData, email: e.target.value })}
+                placeholder="ana@ejemplo.com"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Teléfono</label>
+              <input
+                required
+                type="text"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-gray-700"
+                value={formData.phone}
+                onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="77712345"
+              />
+            </div>
           </div>
 
           <div>
@@ -117,7 +117,7 @@ export default function ClientModal({ isOpen, onClose, onSave, clientToEdit }: C
               type="text"
               className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all text-gray-700"
               value={formData.address}
-              onChange={e => setFormData({...formData, address: e.target.value})}
+              onChange={e => setFormData({ ...formData, address: e.target.value })}
               placeholder="Ej: Av. Principal #123"
             />
           </div>
@@ -147,15 +147,15 @@ export default function ClientModal({ isOpen, onClose, onSave, clientToEdit }: C
 
           {/* BOTONES MEJORADOS */}
           <div className="flex gap-3 mt-8 pt-4 border-t border-gray-100">
-            <button 
-              type="button" 
-              onClick={onClose} 
+            <button
+              type="button"
+              onClick={onClose}
               className="flex-1 py-3.5 border border-gray-200 rounded-xl text-gray-600 font-bold hover:bg-gray-50 hover:border-gray-300 hover:text-gray-800 transition-all"
             >
               Cancelar
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="flex-1 py-3.5 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-700 hover:shadow-blue-500/30 hover:-translate-y-0.5 transition-all transform active:scale-[0.98]"
             >
               {clientToEdit ? 'Guardar Cambios' : 'Registrar Cliente'}
