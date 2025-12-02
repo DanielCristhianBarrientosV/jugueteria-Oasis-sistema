@@ -27,7 +27,7 @@ export default async function ComprasPage() {
         // Mapping for client compatibility
         proveedor: `${s.proveedor.persona.nombre} ${s.proveedor.persona.apellido}`.trim(),
         fecha: s.fecha ? s.fecha.toISOString() : new Date().toISOString(),
-        total: s.detalles.reduce((acc, d) => acc + (Number(d.precioUnitario || 0) * (d.cantidad || 0)), 0),
+        total: s.total ? Number(s.total) : 0,
         items: s.detalles.length,
         estado: 'Completado'
     }));

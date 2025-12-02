@@ -141,6 +141,7 @@ model Suministro {
   proveedorId Int       @map("proveedor_id")
   proveedor   Proveedor @relation(fields: [proveedorId], references: [id])
   fecha       DateTime? @db.Timestamp(6)
+  total       Decimal?  @db.Decimal(18, 2) // [NEW] Campo agregado para almacenar el total de la compra
 
   detalles DetalleSuministro[]
 

@@ -15,11 +15,15 @@ export async function createCompraAction(proveedorId: number, items: CompraItem[
             return { success: false, error: "La lista de compra está vacía" };
         }
 
-        // 1. Crear Suministro (Cabecera)
+        // 1. Calcular Total
+        const total = items.reduce((acc, item) => acc + (item.cantidad * item.precioUnitario), 0);
+
+        // 2. Crear Suministro (Cabecera)
         const suministro = await prisma.suministro.create({
             data: {
                 fecha: new Date(),
                 proveedorId: proveedorId,
+                total: total, // [NEW] Guardamos el total calculado
             },
         });
 
