@@ -5,10 +5,13 @@ import { es } from 'date-fns/locale';
 
 export const dynamic = 'force-dynamic';
 
+import { generatePDF, generateExcel } from '@/lib/report-generator';
+
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const range = searchParams.get('range') || 'month';
+        const formatType = searchParams.get('format'); // 'pdf' or 'excel'
 
         // Rango actual (para métricas principales)
         // Simplificación: Usaremos "Este Mes" como base si range=month, etc.
@@ -91,11 +94,32 @@ export async function GET(request: Request) {
 
         const ventasPorCategoria = Array.from(catMap.entries()).map(([name, valor]) => ({ name, valor }));
 
-        return NextResponse.json({
+        const reportData = {
             metrics,
             ventasMensuales,
             ventasPorCategoria
-        });
+        };
+
+        // MANEJO DE DESCARGAS
+        if (formatType === 'pdf') {
+            const pdfBuffer = await generatePDF(reportData, 'Reporte General');
+            return new NextResponse(pdfBuffer, {
+                headers: {
+                    'Content-Type': 'application/pdf',
+                    'Content-Disposition': 'attachment; filename=reporte_general.pdf'
+                }
+            });
+        } else if (formatType === 'excel') {
+            const excelBuffer = await generateExcel(reportData, 'Reporte General');
+            return new NextResponse(excelBuffer, {
+                headers: {
+                    'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition': 'attachment; filename=reporte_general.xlsx'
+                }
+            });
+        }
+
+        return NextResponse.json(reportData);
 
     } catch (error) {
         console.error('Error fetching general report:', error);

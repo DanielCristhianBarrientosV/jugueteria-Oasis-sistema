@@ -5,10 +5,13 @@ import { es } from 'date-fns/locale';
 
 export const dynamic = 'force-dynamic';
 
+import { generatePDF, generateExcel } from '@/lib/report-generator';
+
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const range = searchParams.get('range') || 'month';
+        const formatType = searchParams.get('format');
 
         let startDate = new Date();
         let endDate = new Date();
@@ -79,10 +82,36 @@ export async function GET(request: Request) {
             }
         ];
 
-        return NextResponse.json({
+        const reportData = {
             ventasDiarias,
-            ventasPorVendedor
-        });
+            ventasPorVendedor,
+            // Para el generador genérico, podemos mapear ventasDiarias a tableData
+            tableData: ventasDiarias.map(v => ({
+                Dia: v.dia,
+                Total: `Bs. ${v.total.toLocaleString()}`,
+                Transacciones: v.items
+            }))
+        };
+
+        if (formatType === 'pdf') {
+            const pdfBuffer = await generatePDF(reportData, 'Reporte de Ventas');
+            return new NextResponse(pdfBuffer, {
+                headers: {
+                    'Content-Type': 'application/pdf',
+                    'Content-Disposition': 'attachment; filename=reporte_ventas.pdf'
+                }
+            });
+        } else if (formatType === 'excel') {
+            const excelBuffer = await generateExcel(reportData, 'Reporte de Ventas');
+            return new NextResponse(excelBuffer, {
+                headers: {
+                    'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'Content-Disposition': 'attachment; filename=reporte_ventas.xlsx'
+                }
+            });
+        }
+
+        return NextResponse.json(reportData);
 
     } catch (error) {
         console.error('Error fetching sales report:', error);
