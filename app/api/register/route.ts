@@ -1,9 +1,14 @@
 // app/api/auth/register/route.ts
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { hashPassword } from '@/lib/auth';
+// import { prisma } from '@/lib/prisma';
+// import { hashPassword } from '@/lib/auth';
 
 export async function POST(request: Request) {
+  return NextResponse.json(
+    { error: 'Registro de usuarios deshabilitado temporalmente por migración de esquema.' },
+    { status: 501 }
+  );
+  /*
   try {
     const body = await request.json();
     const { email, password, name } = body;
@@ -69,4 +74,5 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
+  */
 }

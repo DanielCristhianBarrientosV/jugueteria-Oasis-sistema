@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, ReactElement } from "react";
+import React, { useState, ReactElement } from "react";
 // 1. Importamos tu icono local
 import PriceTagIcon from "@/components/icons/PriceTagIcon";
 
@@ -72,7 +72,7 @@ const Sidebar = () => {
     {
       title: "Precios",
       // Quitamos el href directo para que no navegue, sino que abra el menú
-      icon: <PriceTagIcon className="w-5 h-5" />, 
+      icon: <PriceTagIcon className="w-5 h-5" />,
       submenu: [
         { title: "Listado de Precios", href: "/dashboard/precios/listado" },
         { title: "Actualización Masiva", href: "/dashboard/precios/masiva" },
@@ -87,7 +87,7 @@ const Sidebar = () => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
         </svg>
       ),
-      href: '/dashboard/clientes',
+
     },
     {
       title: 'Compras',
@@ -134,7 +134,8 @@ const Sidebar = () => {
     },
   ];
 
-  const isActive = (href: string) => {
+  const isActive = (href?: string) => {
+    if (!href) return false;
     if (href === '/dashboard') {
       return pathname === href;
     }
@@ -143,9 +144,8 @@ const Sidebar = () => {
 
   return (
     <aside
-      className={`${
-        isCollapsed ? 'w-20' : 'w-64'
-      } bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col shadow-sm h-screen sticky top-0`}
+      className={`${isCollapsed ? 'w-20' : 'w-64'
+        } bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col shadow-sm h-screen sticky top-0`}
     >
       {/* Logo y Toggle */}
       <div className="p-6 flex items-center justify-between border-b border-gray-200">
@@ -177,10 +177,8 @@ const Sidebar = () => {
           title={isCollapsed ? 'Expandir' : 'Contraer'}
         >
           <svg
-            className={`w-5 h-5 text-gray-600 group-hover:text-[${COLOR_PRIMARY}] transition-all ${
-            className={`w-5 h-5 text-gray-600 group-hover:text-[${COLOR_PRIMARY}] transition-all ${
-              isCollapsed ? 'rotate-180' : ''
-            }`}
+            className={`w-5 h-5 text-gray-600 group-hover:text-[${COLOR_PRIMARY}] transition-all ${isCollapsed ? 'rotate-180' : ''
+              }`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -195,27 +193,25 @@ const Sidebar = () => {
         {menuItems.map((item) => (
           <React.Fragment key={item.href}>
             <div
-              className={`relative ${
-                item.children ? 'cursor-pointer' : ''
-              }`}
+              className={`relative ${item.children ? 'cursor-pointer' : ''
+                }`}
             >
               <Link
-                href={item.children ? '#' : item.href} // Si tiene hijos, el link padre no navega, solo colapsa
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
-                  isActive(item.href)
-                    ? `bg-oasis-primary-light text-oasis-primary shadow-sm`
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
+                href={item.children ? '#' : (item.href || '#')} // Si tiene hijos, el link padre no navega, solo colapsa
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${isActive(item.href)
+                  ? `bg-oasis-primary-light text-oasis-primary shadow-sm`
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  }`}
                 // Lógica para alternar la expansión del submenú
                 onClick={item.children
                   ? (e) => {
-                      e.preventDefault();
-                      if (item.href === '/dashboard/reportes') {
-                        setReportsExpanded(!reportsExpanded);
-                      } else if (item.href === '/dashboard/productos') { // NUEVA LÓGICA
-                        setProductsExpanded(!productsExpanded);
-                      }
+                    e.preventDefault();
+                    if (item.href === '/dashboard/reportes') {
+                      setReportsExpanded(!reportsExpanded);
+                    } else if (item.href === '/dashboard/productos') { // NUEVA LÓGICA
+                      setProductsExpanded(!productsExpanded);
                     }
+                  }
                   : undefined
                 }
               >
@@ -224,11 +220,10 @@ const Sidebar = () => {
                   <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-[${COLOR_PRIMARY}] to-[${COLOR_SECONDARY}] rounded-r-full`} />
                 )}
 
-                <span className={`flex-shrink-0 ${
-                  isActive(item.href)
-                    ? `text-oasis-primary`
-                    : 'text-gray-500 group-hover:text-gray-700'
-                }`}>
+                <span className={`flex-shrink-0 ${isActive(item.href)
+                  ? `text-oasis-primary`
+                  : 'text-gray-500 group-hover:text-gray-700'
+                  }`}>
                   {item.icon}
                 </span>
 
@@ -239,11 +234,10 @@ const Sidebar = () => {
                 {/* Ícono de flecha para desplegar (solo si no está colapsado y tiene hijos) */}
                 {!isCollapsed && item.children && (
                   <svg
-                    className={`w-4 h-4 ml-auto text-gray-400 transition-transform duration-200 ${
-                      (item.href === '/dashboard/reportes' && reportsExpanded) ||
+                    className={`w-4 h-4 ml-auto text-gray-400 transition-transform duration-200 ${(item.href === '/dashboard/reportes' && reportsExpanded) ||
                       (item.href === '/dashboard/productos' && productsExpanded) // Condición para expandir el icono
-                        ? 'rotate-180' : ''
-                    }`}
+                      ? 'rotate-180' : ''
+                      }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -268,18 +262,16 @@ const Sidebar = () => {
                   <Link
                     key={subItem.href}
                     href={subItem.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group relative ${
-                      pathname === subItem.href
-                        ? `bg-oasis-accent-light text-oasis-accent`
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group relative ${pathname === subItem.href
+                      ? `bg-oasis-accent-light text-oasis-accent`
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
                   >
                     {pathname === subItem.href && (
                       <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-oasis-accent rounded-r-full`} />
                     )}
-                    <span className={`text-sm ${
-                        pathname === subItem.href ? `text-oasis-accent` : 'text-gray-500 group-hover:text-gray-700'
-                    }`}>
+                    <span className={`text-sm ${pathname === subItem.href ? `text-oasis-accent` : 'text-gray-500 group-hover:text-gray-700'
+                      }`}>
                       {subItem.title}
                     </span>
                   </Link>
@@ -294,18 +286,16 @@ const Sidebar = () => {
                   <Link
                     key={subItem.href}
                     href={subItem.href}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group relative ${
-                      pathname === subItem.href
-                        ? `bg-oasis-accent-light text-oasis-accent`
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 group relative ${pathname === subItem.href
+                      ? `bg-oasis-accent-light text-oasis-accent`
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                      }`}
                   >
                     {pathname === subItem.href && (
                       <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-oasis-accent rounded-r-full`} />
                     )}
-                    <span className={`text-sm ${
-                        pathname === subItem.href ? `text-oasis-accent` : 'text-gray-500 group-hover:text-gray-700'
-                    }`}>
+                    <span className={`text-sm ${pathname === subItem.href ? `text-oasis-accent` : 'text-gray-500 group-hover:text-gray-700'
+                      }`}>
                       {subItem.title}
                     </span>
                   </Link>
@@ -361,9 +351,8 @@ const Sidebar = () => {
       {/* Footer de usuario */}
       <div className="p-4 border-t border-gray-200 bg-gray-50/50 mt-auto">
         <div
-          className={`flex items-center gap-3 ${
-            isCollapsed ? "justify-center" : ""
-          }`}
+          className={`flex items-center gap-3 ${isCollapsed ? "justify-center" : ""
+            }`}
         >
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
             <span className="text-white font-semibold text-sm">AD</span>
