@@ -12,7 +12,11 @@ import LowStockList from "./components/LowStockList";
 import RecentSalesList from "./components/RecentSalesList";
 import QuickAccessGrid from "./components/QuickAccessGrid";
 
-const DashboardPage = () => {
+import { getDashboardStats } from "@/app/actions/dashboard-actions";
+
+const DashboardPage = async () => {
+  const { metrics, lowStockProducts, recentSales } = await getDashboardStats();
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -49,10 +53,10 @@ const DashboardPage = () => {
             <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
               <PackageIcon className="h-6 w-6 text-blue-600" />
             </div>
-            <span className="text-green-600 text-sm font-semibold">↑ 12%</span>
+            <span className="text-green-600 text-sm font-semibold">--</span>
           </div>
           <p className="text-gray-600 text-sm mb-1">Productos en Stock</p>
-          <p className="text-3xl font-bold text-gray-900 mb-1">1,234</p>
+          <p className="text-3xl font-bold text-gray-900 mb-1">{metrics.totalProducts}</p>
           <p className="text-gray-500 text-xs">Total de productos</p>
         </div>
 
@@ -61,10 +65,10 @@ const DashboardPage = () => {
             <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
               <ShoppingCartIcon className="h-6 w-6 text-green-600" />
             </div>
-            <span className="text-green-600 text-sm font-semibold">↑ 23%</span>
+            <span className="text-green-600 text-sm font-semibold">Mes Actual</span>
           </div>
           <p className="text-gray-600 text-sm mb-1">Ventas del Mes</p>
-          <p className="text-3xl font-bold text-gray-900 mb-1">Bs. 45,678</p>
+          <p className="text-3xl font-bold text-gray-900 mb-1">Bs. {metrics.totalSalesMonth.toLocaleString('es-BO')}</p>
           <p className="text-gray-500 text-xs">Total de ventas</p>
         </div>
 
@@ -73,10 +77,10 @@ const DashboardPage = () => {
             <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
               <UsersIcon className="h-6 w-6 text-purple-600" />
             </div>
-            <span className="text-green-600 text-sm font-semibold">↑ 5%</span>
+            <span className="text-green-600 text-sm font-semibold">Activos</span>
           </div>
           <p className="text-gray-600 text-sm mb-1">Clientes Activos</p>
-          <p className="text-3xl font-bold text-gray-900 mb-1">89</p>
+          <p className="text-3xl font-bold text-gray-900 mb-1">{metrics.activeClients}</p>
           <p className="text-gray-500 text-xs">Clientes registrados</p>
         </div>
 
@@ -87,7 +91,7 @@ const DashboardPage = () => {
             </div>
           </div>
           <p className="text-gray-600 text-sm mb-1">Proveedores</p>
-          <p className="text-3xl font-bold text-gray-900 mb-1">15</p>
+          <p className="text-3xl font-bold text-gray-900 mb-1">{metrics.activeProviders}</p>
           <p className="text-gray-500 text-xs">Proveedores activos</p>
         </div>
       </div>
@@ -95,8 +99,8 @@ const DashboardPage = () => {
       {/* Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 flex flex-col gap-6">
-          <LowStockList />
-          <RecentSalesList />
+          <LowStockList products={lowStockProducts} />
+          <RecentSalesList sales={recentSales} />
         </div>
 
         <div className="lg:col-span-1">
