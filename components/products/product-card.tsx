@@ -53,24 +53,29 @@ export function ProductCard({ product, onEdit, onDelete }: ProductCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 pt-2 flex-grow">
-        <div className="flex justify-between items-center mt-2">
-          <div className="flex flex-col">
-            <span className="text-2xl font-bold text-primary">
-              ${product.precio.toFixed(2)}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              Stock: {product.stock}
-            </span>
-          </div>
-          <Badge className={`${getStatusColor(product.estado)} text-white border-0`}>
-            {product.estado}
-          </Badge>
-        </div>
-        <div className="mt-2 text-xs text-gray-500">
-          Marca: {product.marca}
-        </div>
-      </CardContent>
+   
+
+<CardContent className="p-4 pt-2 flex-grow">
+  <div className="flex justify-between items-center mt-2">
+    <div className="flex flex-col">
+      <span className="text-2xl font-bold text-primary">
+        Bs. {product.precio.toFixed(2)} {/* Cambié $ por Bs. para tu moneda */}
+      </span>
+      
+      {/* 🔴 CAMBIO AQUÍ: De product.stock a product.stockActual */}
+      <span className="text-xs text-muted-foreground">
+        Stock: {product.stockActual ?? 0} 
+      </span>
+      
+    </div>
+    <Badge className={`${getStatusColor(product.estado)} text-white border-0`}>
+      {product.estado}
+    </Badge>
+  </div>
+  <div className="mt-2 text-xs text-gray-500">
+    Marca: {product.marca}
+  </div>
+</CardContent>
 
       <CardFooter className="flex gap-2 pt-4">
         {onEdit && (

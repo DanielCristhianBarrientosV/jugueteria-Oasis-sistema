@@ -22,9 +22,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Hemos quitado el bloque 'eslint' porque causaba el error en la nueva versión
   typescript: {
     ignoreBuildErrors: true,
   },

@@ -1,9 +1,8 @@
 'use server';
 
-import { PrismaClient } from '@prisma/client';
+import prisma from "@/lib/prisma"; // Asegúrate de usar tu instancia compartida
 
-const prisma = new PrismaClient();
-
+// 1. Corregimos el TIPO para incluir stockActual
 export type ProductWithDetails = {
   id: number;
   nombre: string;
@@ -11,7 +10,8 @@ export type ProductWithDetails = {
   categoria: string;
   marca: string;
   precio: number;
-  stock: number;
+  stock: number;        // Mantenemos este por compatibilidad
+  stockActual: number;  // ✅ AGREGAMOS ESTE para que el ProductCard no de error
   estado: 'DISPONIBLE' | 'STOCK BAJO' | 'AGOTADO';
   imagenUrl: string;
 };
@@ -22,11 +22,10 @@ export async function getProducts(): Promise<ProductWithDetails[]> {
       include: {
         categoria: true,
         marca: true,
-        inventarios: true,
+        // Ya no dependemos de 'inventarios' para el stock total, 
+        // pero lo dejamos por si acaso.
         precios: {
-          orderBy: {
-            id: 'desc',
-          },
+          orderBy: { id: 'desc' },
           take: 1,
         },
       },
@@ -36,14 +35,15 @@ export async function getProducts(): Promise<ProductWithDetails[]> {
     });
 
     return products.map((product) => {
-      // 1. Flatten Price
+      // 1. Precio
       const precioDecimal = product.precios[0]?.monto;
       const precio = precioDecimal ? Number(precioDecimal) : 0;
 
-      // 2. Calculate Total Stock
-      const stock = product.inventarios.reduce((acc, curr) => acc + (curr.stock || 0), 0);
+      // 2. Stock (CORRECCIÓN CLAVE)
+      // Leemos directamente la columna donde se guardan las actualizaciones
+      const stock = product.stockActual || 0;
 
-      // 3. Determine Status
+      // 3. Estado
       let estado: 'DISPONIBLE' | 'STOCK BAJO' | 'AGOTADO' = 'DISPONIBLE';
       if (stock === 0) {
         estado = 'AGOTADO';
@@ -51,7 +51,7 @@ export async function getProducts(): Promise<ProductWithDetails[]> {
         estado = 'STOCK BAJO';
       }
 
-      // 4. Handle Image
+      // 4. Imagen
       const imagenUrl = product.imagenUrl || 'https://placehold.co/600x400?text=No+Image';
 
       return {
@@ -61,7 +61,8 @@ export async function getProducts(): Promise<ProductWithDetails[]> {
         categoria: product.categoria?.nombre || 'Sin Categoría',
         marca: product.marca?.nombre || 'Sin Marca',
         precio,
-        stock,
+        stock,          // Valor para compatibilidad
+        stockActual: stock, // ✅ Valor real para tu Card y Formulario
         estado,
         imagenUrl,
       };

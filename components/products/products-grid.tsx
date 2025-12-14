@@ -150,7 +150,10 @@ export function ProductsGrid({ initialProducts, categories, brands }: ProductsGr
                   categoriaId: categories.find(c => c.nombre === editingProduct.categoria)?.id || 0,
                   marcaId: brands.find(b => b.nombre === editingProduct.marca)?.id || 0,
                   precio: editingProduct.precio,
-                  stock: editingProduct.stock,
+                  
+                  // ✅ CORRECCIÓN: Ahora usamos stockActual que viene seguro desde el paso 1
+                  stock: editingProduct.stockActual, 
+                  
                   imagenUrl: editingProduct.imagenUrl,
                 } : undefined}
                 onSuccess={handleSuccess}
